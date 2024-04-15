@@ -24,7 +24,7 @@ const ClassroomHeader = ({ classroom }) => {
           Access Code : <Badge>{classroom.accessCode}</Badge>
         </span>
       </Col>
-      <hr className="bg-primary" />
+      <hr className="bg-danger" />
     </Row>
   );
 };

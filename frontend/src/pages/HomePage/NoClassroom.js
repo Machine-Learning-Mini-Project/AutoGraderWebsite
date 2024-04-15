@@ -13,7 +13,7 @@ const NoClassroom = () => {
         width={300}
         height="auto"
       />
-      <h3 className="mt-2">There are no classroom you entered</h3>
+      <h3 className="mt-2">NO CLASSROOMS JOINED</h3>
     </div>
   );
 };

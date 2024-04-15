@@ -53,7 +53,7 @@ const PostTab = ({ classroom }) => {
                   <Col className="text-end">
                     <Button
                       size="sm"
-                      variant="warning"
+                      variant="danger"
                       onClick={() => deletePost(classroom._id, post._id)}
                     >
                       <AiFillDelete />

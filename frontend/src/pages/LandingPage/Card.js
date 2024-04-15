@@ -6,7 +6,7 @@ const MyCard = ({ title, text, img }) => {
     <Col>
       <Card
         // style={{ height: "25rem" }}
-        className="border-primary border-2 text-center shadow-lg bg-light p-3 h-100"
+        className="border-danger border-2 text-center shadow-lg bg-light p-3 h-100"
       >
         <Image className="mt-auto" src={img} alt={title} />
         <div className="mt-auto">

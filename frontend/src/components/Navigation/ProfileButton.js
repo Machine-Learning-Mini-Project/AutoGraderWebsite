@@ -30,7 +30,7 @@ const ProfileButton = () => {
       {user.role === "student" ? (
         <>
           <Button
-            variant="warning"
+            variant="danger"
             size="sm"
             onClick={() => setModalShow(true)}
           >
@@ -42,7 +42,7 @@ const ProfileButton = () => {
       ) : (
         <>
           <Button
-            variant="warning"
+            variant="danger"
             size="sm"
             onClick={() => setModalShow(true)}
           >
@@ -54,7 +54,7 @@ const ProfileButton = () => {
       )}
       <Button
         variant="outline-secondary"
-        className="ms-auto btn-outline-primary"
+        className="ms-auto btn-outline-danger"
         size="sm"
       >
         <BsPersonCircle className="me-2" />

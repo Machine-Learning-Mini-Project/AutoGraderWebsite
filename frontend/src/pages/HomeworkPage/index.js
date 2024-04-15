@@ -76,7 +76,7 @@ const HomeworkPage = () => {
           </Button>
         </Col>
       </Row>
-      <hr className="bg-primary" />
+      <hr className="bg-danger" />
       {/* body */}
       <p className="lead">{homework.content}</p>
 
@@ -128,7 +128,7 @@ const HomeworkPage = () => {
       )}
       {homework?.appointedStudents?.length > 0 && (
         <>
-          <p className="text-center text-uppercase border border-warning border-2 ">
+          <p className="text-center text-uppercase border border-danger border-2 ">
             Those who do not do their homework
           </p>
 

@@ -73,7 +73,7 @@ const TeacherModal = (props) => {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="outline-primary" onClick={formik.handleSubmit}>
+        <Button variant="outline-danger" onClick={formik.handleSubmit}>
           Create
         </Button>
         <Button onClick={props.onHide}>Close</Button>

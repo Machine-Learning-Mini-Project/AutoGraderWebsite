@@ -28,7 +28,11 @@ const RegisterPage = () => {
     validationSchema: registerValidation,
     onSubmit: async (values, bag) => {
       try {
+        console.log("Hemlo");
+
         await fetchRegister(values);
+        console.log("Hemlo");
+
         navigate("/login");
       } catch (err) {
         bag.setErrors({ general: err.response.data.message });
@@ -121,7 +125,7 @@ const RegisterPage = () => {
                   id="studentRadio"
                   value={"student"}
                   onChange={formik.handleChange}
-                  variant="outline-primary"
+                  variant="outline-danger"
                   className="btn-sm me-3"
                 >
                   Student
@@ -130,7 +134,7 @@ const RegisterPage = () => {
                   id="teacherRadio"
                   value="teacher"
                   onChange={formik.handleChange}
-                  variant="outline-primary"
+                  variant="outline-danger"
                   className="btn-sm me-3"
                 >
                   Teacher

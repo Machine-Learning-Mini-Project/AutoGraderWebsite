@@ -18,8 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    // origin: process.env.CLIENT_URL,
-    // credentials: true,
+    origin: process.env.CLIENT_URL,
+    credentials: true,
   })
 );
 

@@ -26,6 +26,7 @@ const LoginPage = () => {
     validationSchema: loginInputValidation,
     onSubmit: async (values, bag) => {
       try {
+        console.log("Hemlo");
         const response = await fetchLogin(values);
         login(response);
         navigate("/");

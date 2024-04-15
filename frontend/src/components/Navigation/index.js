@@ -9,11 +9,12 @@ const Navigation = () => {
   const { isLoggin } = useContext(AuthContext);
 
   return (
-    <Navbar bg="primary" variant="dark" expand="lg" collapseOnSelect>
+    <Navbar bg="danger" variant="dark" expand="lg" collapseOnSelect>
       <Container>
         <LinkContainer to="/">
+          {/* <Navbar.Brand href="./assee" */}
           <Navbar.Brand href="#home" className="fw-bold">
-            Classroom
+            Somaiya Classroom
           </Navbar.Brand>
         </LinkContainer>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />

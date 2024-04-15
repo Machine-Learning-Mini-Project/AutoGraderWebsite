@@ -13,23 +13,23 @@ const CardsSection = () => {
       <Row className="g-4 mt-3 mx-3" xs={1} md={2} sm={2} lg={4}>
         <MyCard
           img={lectureNotes}
-          title="Share Lecture Notes"
-          text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
+          title="Collaborate"
+          // text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
         />
         <MyCard
           img={shareYourHomework}
-          title="Share Homework"
-          text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
+          title="Cultivate"
+          // text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
         />
         <MyCard
           img={giveNote}
-          title="Rate Project"
-          text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
+          title="Creative"
+          // text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
         />
         <MyCard
           img={downloadExcel}
-          title="Output As Excel Document"
-          text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
+          title="Communicate"
+          // text="Lorem, ipsum dolor sit amet consectetur adipisicing elit."
         />
       </Row>
     </Container>

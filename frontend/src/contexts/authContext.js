@@ -64,7 +64,7 @@ const AuthContextProvider = ({ children }) => {
   };
 
   if (loading) {
-    return <Spinner animation="grow" variant="primary" />;
+    return <Spinner animation="grow" variant="danger" />;
   }
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

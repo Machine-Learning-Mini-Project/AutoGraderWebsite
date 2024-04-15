@@ -9,19 +9,16 @@ const MainSection = () => {
       <Container>
         <Row className="justify-content-center align-items-center">
           <Col className="text-center me-5">
-            <h2 className="mb-4">
-              The platform where everything related to education and learning
-              comes together
+            <h2 className="mb-5">
+              Somaiya Classroom making Lab work and Submissions seamless
             </h2>
-            <p className="lead">
-              <span className="text-primary fw-bold">Classroom</span> is a
+            {/* <p className="lead">
+              <span className="text-primary fw-bold">Somaiya Classroom</span> is a
               one-stop shop for all things education and learning. With our
               easy-to-use and secure tool, instructors manage, measure and
               enrich their learning experience.
-            </p>
-            <LinkContainer to="/register">
-              <Button>Join Us</Button>
-            </LinkContainer>
+            </p> */}
+           
           </Col>
           <Col className="d-none d-md-block">
             <Image fluid src={mainSvg} alt="Online Education | Classroom App" />

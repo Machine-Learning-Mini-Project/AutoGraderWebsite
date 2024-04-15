@@ -21,7 +21,7 @@ const HomePage = () => {
                 to={`/classroom/${classroom._id}`}
                 className="text-decoration-none text-dark"
               >
-                <Card border={user.role === "teacher" ? "warning" : "primary"}>
+                <Card border={user.role === "teacher" ? "warning" : "danger"}>
                   <Card.Img variant="top" src={classroomSVG} className="p-4" />
                   <Card.Body>
                     <Card.Title>{classroom.title}</Card.Title>

@@ -38,7 +38,7 @@ const HomeworkTab = ({ homeworks }) => {
                         <Col className="text-end">
                           <Button
                             size="sm"
-                            variant="warning"
+                            variant="danger"
                             onClick={() => deleteHomework(homework._id)}
                           >
                             <AiFillDelete />
