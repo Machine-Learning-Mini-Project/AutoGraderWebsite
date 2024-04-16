@@ -13,6 +13,7 @@ router.post(
   "/:classroomID",
   isAuth,
   isTeacher,
+  uploadFile.any(),
   classroomCheck,
   homeworkController.addHomework
 );

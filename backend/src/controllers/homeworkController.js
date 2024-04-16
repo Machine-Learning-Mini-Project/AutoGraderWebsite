@@ -13,39 +13,32 @@ const Questions = require("../models/Questions");
 
 // Adding homework with dynamic question types
 const addHomework = asyncHandler(async (req, res, next) => {
-    const { deadline, questions } = req.body;
+    let { deadline, questions } = req.body;
     const classroom = req.classroom;
+    questions = JSON.parse(questions)
   
     let savedQuestions = [];
 
-    console.log("Megic");
+    
+    // console.log(questions)
+    console.log("megic")
   
     // Use a for...of loop to handle asynchronous file operations and database saves
     for (const question of questions) {
-
-        console.log(question)
-
-
       if (question.type === 'code') {
 
-        console.log("hello1");
-
-        const file = question.file // Using file upload middleware like multer
-        const filename = `${new Date().getTime()}_${file.name}`;
-        const filePath = path.join(__dirname, '../uploads', filename);
-
-        console.log(file, filename, filePath)
-
-        console.log("hello2")
+        const file = req.files[0] // Using file upload middleware like multer
+        const filename = `${new Date().getTime()}_${file.originalname}`;
+        const filePath = path.join(__dirname, '../../public/uploads/homeworks', filename);
   
-        // Async file move operation
+        //Async file move operation
         await new Promise((resolve, reject) => {
-          file.mv(filePath, (err) => {
+          fs.rename(file.path, filePath, (err) => {
             if (err) {
-                console.log("y",err);
+                // console.log("y",err);
               reject(err);
             } else {
-                console.log("x",err);
+                // console.log("x",err);
               resolve();
             }
           });
@@ -60,8 +53,10 @@ const addHomework = asyncHandler(async (req, res, next) => {
           file: filePath
         });
 
-        const savedQuestion = await dat.save();
-        savedQuestions.push(savedQuestion);
+        await dat.save();
+        savedQuestions.push(dat);
+
+        console.log("here")
   
       } else if (question.type === 'subjective') {
 
@@ -70,11 +65,11 @@ const addHomework = asyncHandler(async (req, res, next) => {
           description: question.description,
           answer: question.answer
         });        
-        const savedQuestion = await dat.save();
-        savedQuestions.push(savedQuestion);
+        await dat.save();
+        savedQuestions.push(dat);
         }
     }
-
+    
   
     // Create new homework with all questions linked
     const homework = new Homework({

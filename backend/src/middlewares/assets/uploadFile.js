@@ -13,17 +13,19 @@ const storage = multer.diskStorage({
     if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir);
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
     if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir);
-
     cb(null, fileDir);
   },
   filename: function (req, file, cb) {
     const extension = file.mimetype.split("/")[1];
     const sign = nanoid(3);
-    const userID = req.user.id;
+    // const userID = req.user.id;
+    const userID = 1;
     const classroomID = req.params.classroomID;
     const fileName = `${classroomID}-${userID}-${sign}.${extension}`;
 
     cb(null, fileName);
+
+    // console.log("req")
   },
 });
 
