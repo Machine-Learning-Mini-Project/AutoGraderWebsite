@@ -22,55 +22,58 @@ const HomeworkTab = ({ homeworks }) => {
     <>
       {user.role === "teacher" && <CreateHomework />}
       {homeworks.length === 0 ? (
-        <p className="fw-bold mt-2 text-center">There are no homework.</p>
+        <p className="fw-bold mt-2 text-center">There are no homework assignments.</p>
       ) : (
         <>
-          {homeworks
-            .map((homework) => (
-              <Card className="mt-2" key={homework._id}>
-                <Card.Body>
-                  <Card.Title>
-                    <Row className="">
-                      <Col>
-                        <h5 className="d-inline me-3">{homework.title}</h5>
-                      </Col>
-                      {user.role === "teacher" && (
-                        <Col className="text-end">
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => deleteHomework(homework._id)}
-                          >
-                            <AiFillDelete />
-                          </Button>
-                        </Col>
-                      )}
-                    </Row>
-                  </Card.Title>
-                  <Card.Text>{homework.content}</Card.Text>
-                </Card.Body>
-                <Card.Footer className="text-muted">
+          {homeworks.map((homework) => (
+            <Card className="mt-2" key={homework._id}>
+              <Card.Body>
+                <Card.Title>
                   <Row>
                     <Col>
-                      {user.role === "student" ? (
-                        <SubmitHomeworkOffCanvas homeworkID={homework._id} />
-                      ) : (
-                        <LinkContainer to={`/homework/${homework._id}`}>
-                          <Button size="sm">
-                            Detail <AiOutlineEnter />
+                      <h5 className="d-inline me-3">{homework.title}</h5>
+                      <small>Due {moment(homework.endTime).format("DD.MM.YYYY")}</small>
+                    </Col>
+                    {user.role === "teacher" && (
+                      <Col className="text-end">
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          onClick={() => deleteHomework(homework._id)}
+                        >
+                          <AiFillDelete />
+                        </Button>
+                        <LinkContainer to={`/edit-homework/${homework._id}`}>
+                          <Button size="sm" variant="secondary" className="ms-2">
+                            Edit
                           </Button>
                         </LinkContainer>
-                      )}
-                    </Col>
-                    <Col className="text-end">
-                      THE LAST DAY{" "}
-                      {moment(homework.endTime).format("DD.MM.YYYY")}
-                    </Col>
+                      </Col>
+                    )}
                   </Row>
-                </Card.Footer>
-              </Card>
-            ))
-            .reverse()}
+                </Card.Title>
+                <Card.Text>{homework.content}</Card.Text>
+              </Card.Body>
+              <Card.Footer className="text-muted">
+                <Row>
+                  <Col>
+                    {user.role === "student" ? (
+                      <SubmitHomeworkOffCanvas homeworkID={homework._id} />
+                    ) : (
+                      <LinkContainer to={`/homework/${homework._id}`}>
+                        <Button size="sm">
+                          Details <AiOutlineEnter />
+                        </Button>
+                      </LinkContainer>
+                    )}
+                  </Col>
+                  <Col className="text-end">
+                    Last Day: {moment(homework.endTime).format("DD.MM.YYYY")}
+                  </Col>
+                </Row>
+              </Card.Footer>
+            </Card>
+          )).reverse()}
         </>
       )}
     </>

@@ -1,73 +1,144 @@
-import React, { useContext } from "react";
-import { Button, Form, Accordion } from "react-bootstrap";
-import { useFormik } from "formik";
-import { fetchCreateHomework } from "../../api/homeworkApi";
+import React, { useState, useEffect, useContext } from 'react';
+import { Button, Form, Accordion, InputGroup, FormControl } from 'react-bootstrap';
+import { useFormik } from 'formik';
+import { fetchCreateHomework } from '../../api/homeworkApi';
 import { fetchClassroomDetail } from "../../api/classroomApi";
 import { AuthContext } from "../../contexts/authContext";
 
+
 const CreateHomework = () => {
-  const { classroom, setClassroom } = useContext(AuthContext);
+    
+    const [questions, setQuestions] = useState([]);
+    const { classroom, setClassroom } = useContext(AuthContext);
 
-  const formik = useFormik({
-    initialValues: {
-      title: "",
-      content: "",
-      endTime: "",
-    },
-    onSubmit: async (values, bag) => {
-      await fetchCreateHomework(classroom._id, values);
 
-      const { data } = await fetchClassroomDetail(classroom._id);
-      setClassroom({ ...data.data });
-    },
-  });
+    useEffect(() => {
+        console.log(questions)
+    }, [questions])
+ 
+    const formik = useFormik({
+      initialValues: {
+        deadline: '',
+      },
+      onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+        setSubmitting(true);
+        
+        // Prepare the data for submission
+        const homeworkData = {
+          deadline: values.deadline,
+          questions: questions
+        };
+      
+        try {
+          // Mock API call to send homework data
+          // You should replace this with the actual API call
+          console.log("Submitting Homework:", homeworkData);
+          const response = await fetchCreateHomework(classroom._id,homeworkData); // Uncomment and use your API service call
+      
+          resetForm();  // Reset the form after successful submission
+          setQuestions([]);  // Clear questions after submission
+          alert("Homework added successfully");  // Provide a success message to the user
+        } catch (error) {
+          console.error("Failed to submit homework:", error);
+          setErrors({ submit: "Failed to create homework. Please try again." });
+        }
+      
+        setSubmitting(false);  // Reset submitting state
+      },      
+    });
+  
+    const addQuestion = (type) => {
+      const newQuestion = { type, description: '', file: null };
+      setQuestions([...questions, newQuestion]);
+    };
+  
+    const handleQuestionChange = (value, index, field) => {
+      const updatedQuestions = questions.map((question, i) => {
+        if (i === index) {
+          return { ...question, [field]: value };
+        }
+        return question;
+      });
+      setQuestions(updatedQuestions);
+    };
 
-  return (
-    <Accordion defaultActiveKey={0} className="mt-3">
-      <Accordion.Item eventKey="0">
-        <Accordion.Header>Create Post</Accordion.Header>
-        <Accordion.Body>
-          {/* Form */}
-          <Form
-            className="px-5"
-            onSubmit={formik.handleSubmit}
-            encType="multipart/form-data"
-          >
-            {/* Title */}
-            <Form.Group className="mt-2">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                onChange={formik.handleChange}
-                type="text"
-                name="title"
-              />
-            </Form.Group>
-            <Form.Group className="mt-2">
-              <Form.Label>Content</Form.Label>
-              <Form.Control
-                onChange={formik.handleChange}
-                type="text"
-                name="content"
-              />
-            </Form.Group>
-            <Form.Group className="mb-3 mt-2">
-              <Form.Label>End Time</Form.Label>
-              <Form.Control
-                onChange={formik.handleChange}
-                type="date"
-                name="endTime"
-              />
-            </Form.Group>
-            <div className="d-grid gap-2">
-              <Button size="sm" type="submit">
-                Send
-              </Button>
-            </div>
-          </Form>
-        </Accordion.Body>
-      </Accordion.Item>
-    </Accordion>
-  );
+    return (
+        <Accordion defaultActiveKey={0} className="mt-3">
+            <Accordion.Item eventKey="0">
+                <Accordion.Header>Create Homework</Accordion.Header>
+                <Accordion.Body>
+                    {/* Form */}
+                    <Form onSubmit={formik.handleSubmit}>
+                        <Button
+                            variant="primary"
+                            onClick={() => addQuestion("code")}
+                        >
+                            Add Code Question
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={() => addQuestion("subjective")}
+                        >
+                            Add Subjective Question
+                        </Button>
+
+                        {questions.map((question, index) => (
+                            <div key={index} className="my-3">
+                                <InputGroup>
+                                    <FormControl
+                                        placeholder="Question Description"
+                                        value={question.description}
+                                        onChange={(e) =>
+                                            handleQuestionChange(
+                                                e.target.value,
+                                                index,
+                                                "description"
+                                            )
+                                        }
+                                    />
+                                </InputGroup>
+                                {question.type === "code" ? (
+                                    <FormControl
+                                        type="file"
+                                        onChange={(e) =>
+                                            handleQuestionChange(
+                                                e.target.files[0],
+                                                index,
+                                                "file"
+                                            )
+                                        }
+                                    />
+                                ) : (
+                                    <FormControl
+                                        as="textarea"
+                                        placeholder="Write the question here"
+                                        onChange={(e) =>
+                                            handleQuestionChange(
+                                                e.target.value,
+                                                index,
+                                                "answer"
+                                            )
+                                        }
+                                    />
+                                )}
+                            </div>
+                        ))}
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Deadline</Form.Label>
+                            <Form.Control
+                                type="date"
+                                name="deadline"
+                                onChange={formik.handleChange}
+                            />
+                        </Form.Group>
+
+                        <Button type="submit">Add Homework</Button>
+                    </Form>
+                </Accordion.Body>
+            </Accordion.Item>
+        </Accordion>
+    );
 };
 
 export default CreateHomework;
