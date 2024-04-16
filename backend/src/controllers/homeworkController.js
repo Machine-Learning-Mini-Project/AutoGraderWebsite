@@ -27,34 +27,47 @@ const addHomework = asyncHandler(async (req, res, next) => {
     for (const question of questions) {
       if (question.type === 'code') {
 
-        const file = req.files[0] // Using file upload middleware like multer
-        const filename = `${new Date().getTime()}_${file.originalname}`;
-        const filePath = path.join(__dirname, '../../public/uploads/homeworks', filename);
-  
-        //Async file move operation
-        await new Promise((resolve, reject) => {
-          fs.rename(file.path, filePath, (err) => {
-            if (err) {
-                // console.log("y",err);
-              reject(err);
-            } else {
-                // console.log("x",err);
-              resolve();
-            }
-          });
-        });
-  
-        console.log("File saved to:", filePath);
-  
-        // Create and save the question with the file path
-        const dat = new Questions({
-          type: question.type,
-          description: question.description,
-          file: filePath
+        const files = req.files // Using file upload middleware like multer
+        const filenames = files.map((file, ind) => {
+          return `${new Date().getTime()}_${file.originalname}`;
         });
 
-        await dat.save();
-        savedQuestions.push(dat);
+        const filepaths = filenames.map((filename, ind) => {
+          return path.join(__dirname, '../../public/uploads/homeworks', filename);;
+        });
+
+        files.forEach(async (file, ind) => {
+          try {
+              await new Promise((resolve, reject) => {
+                  fs.rename(file.path, filepaths[ind], (err) => {
+                      if (err) {
+                          reject(err);
+                      } else {
+                          console.log(`File ${file.originalname} successfully renamed.`);
+                          resolve();
+                      }
+                  });
+              });
+          } catch (error) {
+              console.error(`Error renaming file ${file.originalname}:`, error);
+          }
+      });
+
+      console.log("here")
+
+        // console.log("File saved to:", filePath);
+  
+        // Create and save the question with the file path
+        questions.forEach((question, ind) => {
+          const dat = new Questions({
+            type: question.type,
+            description: question.description,
+            file: filepaths[ind]
+          });
+
+          savedQuestions.push(dat);
+        });
+  
 
         console.log("here")
   
