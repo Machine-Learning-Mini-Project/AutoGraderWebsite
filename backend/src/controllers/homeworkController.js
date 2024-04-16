@@ -19,69 +19,69 @@ const addHomework = asyncHandler(async (req, res, next) => {
   
     let savedQuestions = [];
 
-    
     // console.log(questions)
     console.log("megic")
   
     // Use a for...of loop to handle asynchronous file operations and database saves
-    for (const question of questions) {
-      if (question.type === 'code') {
 
-        const files = req.files // Using file upload middleware like multer
-        const filenames = files.map((file, ind) => {
-          return `${new Date().getTime()}_${file.originalname}`;
-        });
+    const files = req.files // Using file upload middleware like multer
 
-        const filepaths = filenames.map((filename, ind) => {
-          return path.join(__dirname, '../../public/uploads/homeworks', filename);;
-        });
+    const filenames = files.map((file, ind) => {
+      return `${new Date().getTime()}_${file.originalname}`;
+    });
 
-        files.forEach(async (file, ind) => {
-          try {
-              await new Promise((resolve, reject) => {
-                  fs.rename(file.path, filepaths[ind], (err) => {
-                      if (err) {
-                          reject(err);
-                      } else {
-                          console.log(`File ${file.originalname} successfully renamed.`);
-                          resolve();
-                      }
-                  });
+    const filepaths = filenames.map((filename, ind) => {
+      return path.join(__dirname, '../../public/uploads/homeworks', filename);;
+    });
+    
+    for (let i=0; i<files.length; i++){
+      try {
+          await new Promise((resolve, reject) => {
+              fs.rename(files[i].path, filepaths[i], (err) => {
+                  if (err) {
+                      reject(err);
+                  } else {
+                      console.log(`File ${files[i].originalname} successfully renamed.`);
+                      resolve();
+                  }
               });
-          } catch (error) {
-              console.error(`Error renaming file ${file.originalname}:`, error);
-          }
-      });
-
-      console.log("here")
-
-        // console.log("File saved to:", filePath);
-  
-        // Create and save the question with the file path
-        questions.forEach((question, ind) => {
-          const dat = new Questions({
-            type: question.type,
-            description: question.description,
-            file: filepaths[ind]
           });
+      } catch (error) {
+          console.error(`Error renaming file ${files[i].originalname}:`, error);
+      }
+    }
 
-          savedQuestions.push(dat);
+    console.log("here")
+
+    // console.log("File saved to:", filePath);
+
+    // Create and save the question with the file path
+    let i1 = 0;
+    questions.forEach((question) => {
+      if(question.type == 'code'){
+        const dat = new Questions({
+          type: question.type,
+          description: question.description,
+          file: filepaths[i1]
         });
-  
+        i1 += 1;
+        savedQuestions.push(dat);
+      }
+    });
 
-        console.log("here")
-  
-      } else if (question.type === 'subjective') {
 
+    console.log("here")
+
+    questions.forEach((question) => {
+      if (question.type === 'subjective') {
         const dat = new Questions({
           type: question.type,
           description: question.description,
           answer: question.answer
         });        
-        await dat.save();
         savedQuestions.push(dat);
-        }
-    }
+      }
+    });    
     
   
     // Create new homework with all questions linked
