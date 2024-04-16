@@ -14,7 +14,7 @@ const CreateHomework = () => {
 
 
     useEffect(() => {
-        console.log(questions)
+        // console.log(questions)
     }, [questions])
  
     const formik = useFormik({
@@ -29,12 +29,28 @@ const CreateHomework = () => {
           deadline: values.deadline,
           questions: questions
         };
+        
+        // console.log(questions)
+        const formData = new FormData();
+        formData.append("deadline", values.deadline)
+        formData.append("questions", JSON.stringify(questions))
+
+        for (let i = 0; i < questions.length; i++) {
+            if(questions[i].file !== undefined)
+                formData.append(`codeFile${i}`, questions[i].file)
+        }
+
+        
       
         try {
           // Mock API call to send homework data
           // You should replace this with the actual API call
-          console.log("Submitting Homework:", homeworkData);
-          const response = await fetchCreateHomework(classroom._id,homeworkData); // Uncomment and use your API service call
+        //   console.log("Submitting Homework:", homeworkData);
+        //   const response = await fetchCreateHomework(classroom._id,homeworkData); // Uncomment and use your API service call
+
+        console.log("Submitting Homework:", formData);
+        const response = await fetchCreateHomework(classroom._id,formData); // Uncomment and use your API service call
+
       
           resetForm();  // Reset the form after successful submission
           setQuestions([]);  // Clear questions after submission
@@ -56,6 +72,7 @@ const CreateHomework = () => {
     const handleQuestionChange = (value, index, field) => {
       const updatedQuestions = questions.map((question, i) => {
         if (i === index) {
+            // console.log(field, value)
           return { ...question, [field]: value };
         }
         return question;

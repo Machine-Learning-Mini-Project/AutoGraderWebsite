@@ -20,6 +20,7 @@ const SubmitHomeworkOffCanvas = ({ homeworkID }) => {
     onSubmit: async (values, bag) => {
       try {
         formData.append("homework", values.homework);
+        console.log(formData)
         await fetchSubmitHomework(homeworkID, formData);
         setShow(false);
         setToastShow(true);
