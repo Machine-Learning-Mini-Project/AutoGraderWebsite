@@ -22,17 +22,30 @@ const addHomework = asyncHandler(async (req, res, next) => {
   
     // Use a for...of loop to handle asynchronous file operations and database saves
     for (const question of questions) {
-      if (question.type === 'code' && req.files && req.files[question.questionId]) {
-        const file = req.files[question.questionId]; // Using file upload middleware like multer
-        const filename = `${new Date().getTime()}_${file.originalname}`;
+
+        console.log(question)
+
+
+      if (question.type === 'code') {
+
+        console.log("hello1");
+
+        const file = question.file // Using file upload middleware like multer
+        const filename = `${new Date().getTime()}_${file.name}`;
         const filePath = path.join(__dirname, '../uploads', filename);
+
+        console.log(file, filename, filePath)
+
+        console.log("hello2")
   
         // Async file move operation
         await new Promise((resolve, reject) => {
           file.mv(filePath, (err) => {
             if (err) {
+                console.log("y",err);
               reject(err);
             } else {
+                console.log("x",err);
               resolve();
             }
           });
@@ -46,6 +59,7 @@ const addHomework = asyncHandler(async (req, res, next) => {
           description: question.description,
           file: filePath
         });
+
         const savedQuestion = await dat.save();
         savedQuestions.push(savedQuestion);
   
@@ -54,7 +68,7 @@ const addHomework = asyncHandler(async (req, res, next) => {
         const dat = new Questions({
           type: question.type,
           description: question.description,
-          answer: question.description
+          answer: question.answer
         });        
         const savedQuestion = await dat.save();
         savedQuestions.push(savedQuestion);
