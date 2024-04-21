@@ -22,6 +22,7 @@ const QuestionSchema = new Schema({
 });
 
 const HomeworkSchema = new Schema({
+    title: String,
   content: String,
   endTime: {
     type: Date,

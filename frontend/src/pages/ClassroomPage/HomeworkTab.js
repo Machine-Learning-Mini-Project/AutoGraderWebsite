@@ -58,7 +58,7 @@ const HomeworkTab = ({ homeworks }) => {
                 <Row>
                   <Col>
                     {user.role === "student" ? (
-                      <SubmitHomeworkOffCanvas homeworkID={homework._id} />
+                      <SubmitHomeworkOffCanvas homeworkID={homework._id} questions = {homework.questions} />
                     ) : (
                       <LinkContainer to={`/homework/${homework._id}`}>
                         <Button size="sm">

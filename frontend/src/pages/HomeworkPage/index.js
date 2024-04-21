@@ -20,6 +20,8 @@ const HomeworkPage = () => {
   const [lock, setLock] = useState(false);
   const { classroom } = useContext(AuthContext);
 
+  useEffect(() => {console.log(homework)}, [])
+
   useEffect(() => {
     const getHomeworkDetail = async () => {
       const { data } = await fetchHomeworkDetail(homeworkID);
@@ -56,7 +58,7 @@ const HomeworkPage = () => {
       {/* header */}
       <Row>
         <Col>
-          <h1>{homework.title}</h1>
+          <h1>{homework?.title}</h1>
         </Col>
         <Col className="text-end">
           Deadline: {moment(homework.endTime).format("DD.MM.YYYY")}
@@ -78,9 +80,9 @@ const HomeworkPage = () => {
       </Row>
       <hr className="bg-danger" />
       {/* body */}
-      <p className="lead">{homework.content}</p>
+      <p className="lead">{homework?.content}</p>
 
-      {homework?.submitters?.length > 0 && (
+      {homework && homework?.submitters && homework?.submitters?.length > 0 && (
         <Table striped bordered hover size="sm">
           <thead>
             <tr>
@@ -92,7 +94,7 @@ const HomeworkPage = () => {
             </tr>
           </thead>
           <tbody>
-            {homework.submitters.map((submitter) => (
+            {homework?.submitters && homework?.submitters?.map((submitter) => (
               <tr key={submitter._id}>
                 <td>{submitter.user.name}</td>
                 <td>{submitter.user.lastname}</td>
@@ -101,12 +103,12 @@ const HomeworkPage = () => {
                     <FaDownload />
                   </Button>
                 </td>
-                <td>{submitter.score || "-"}</td>
+                <td>{submitter?.score || "-"}</td>
                 <td>
                   <RateProjectOffCanvas
-                    name={submitter.user.name}
-                    lastname={submitter.user.lastname}
-                    projectID={submitter._id}
+                    name={submitter?.user.name}
+                    lastname={submitter?.user.lastname}
+                    projectID={submitter?._id}
                     show={show}
                     setShow={setShow}
                   />
@@ -117,7 +119,7 @@ const HomeworkPage = () => {
         </Table>
       )}
 
-      {homework.appointedStudents.length > 0 && (
+      {homework?.appointedStudents?.length > 0 && (
         <Table striped bordered hover size="sm">
           <thead>
             <tr>

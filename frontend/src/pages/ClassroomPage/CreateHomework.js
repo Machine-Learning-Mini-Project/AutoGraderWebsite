@@ -2,82 +2,67 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Button, Form, Accordion, InputGroup, FormControl } from 'react-bootstrap';
 import { useFormik } from 'formik';
 import { fetchCreateHomework } from '../../api/homeworkApi';
-import { fetchClassroomDetail } from "../../api/classroomApi";
 import { AuthContext } from "../../contexts/authContext";
 
-
 const CreateHomework = () => {
-    
     const [questions, setQuestions] = useState([]);
-    
-    const { classroom, setClassroom } = useContext(AuthContext);
-
+    const { classroom } = useContext(AuthContext);
 
     useEffect(() => {
         // console.log(questions)
-    }, [questions])
- 
+    }, [questions]);
+
     const formik = useFormik({
-      initialValues: {
-        deadline: '',
-      },
-      onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
-        setSubmitting(true);
-        
-        // Prepare the data for submission
-        const homeworkData = {
-          deadline: values.deadline,
-          questions: questions
-        };
-        
-        // console.log(questions)
-        const formData = new FormData();
-        formData.append("deadline", values.deadline)
-        formData.append("questions", JSON.stringify(questions))
+        initialValues: {
+            title: '', // Include title in the initial values
+            deadline: '',
+        },
+        onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+            setSubmitting(true);
+            
+            const homeworkData = {
+                title: values.title,
+                deadline: values.deadline,
+                questions: questions
+            };
 
-        for (let i = 0; i < questions.length; i++) {
-            if(questions[i].file !== undefined)
-                formData.append(`codeFile${i}`, questions[i].file)
-        }
+            const formData = new FormData();
+            formData.append("title", values.title);
+            formData.append("deadline", values.deadline);
+            formData.append("questions", JSON.stringify(questions));
 
-        
-      
-        try {
-          // Mock API call to send homework data
-          // You should replace this with the actual API call
-        //   console.log("Submitting Homework:", homeworkData);
-        //   const response = await fetchCreateHomework(classroom._id,homeworkData); // Uncomment and use your API service call
+            for (let i = 0; i < questions.length; i++) {
+                if (questions[i].file !== undefined)
+                    formData.append(`codeFile${i}`, questions[i].file);
+            }
 
-        console.log("Submitting Homework:", formData);
-        const response = await fetchCreateHomework(classroom._id,formData); // Uncomment and use your API service call
+            try {
+                const response = await fetchCreateHomework(classroom._id, formData);
+                resetForm();
+                setQuestions([]);
+                alert("Homework added successfully");
+            } catch (error) {
+                console.error("Failed to submit homework:", error);
+                setErrors({ submit: "Failed to create homework. Please try again." });
+            }
 
-      
-          resetForm();  // Reset the form after successful submission
-          setQuestions([]);  // Clear questions after submission
-          alert("Homework added successfully");  // Provide a success message to the user
-        } catch (error) {
-          console.error("Failed to submit homework:", error);
-          setErrors({ submit: "Failed to create homework. Please try again." });
-        }
-      
-        setSubmitting(false);  // Reset submitting state
-      },      
+            setSubmitting(false);
+        },
     });
-  
+
     const addQuestion = (type) => {
-      const newQuestion = { type, description: '', file: null };
-      setQuestions([...questions, newQuestion]);
+        const newQuestion = { type, description: '', file: null };
+        setQuestions([...questions, newQuestion]);
     };
-  
+
     const handleQuestionChange = (value, index, field) => {
-      const updatedQuestions = questions.map((question, i) => {
-        if (i === index) {
-            // console.log(field, value)
-          return { ...question, [field]: value };
-        }
-        return question;
-      });
-      setQuestions(updatedQuestions);
+        const updatedQuestions = questions.map((question, i) => {
+            if (i === index) {
+                return { ...question, [field]: value };
+            }
+            return question;
+        });
+        setQuestions(updatedQuestions);
     };
 
     return (
@@ -85,8 +70,17 @@ const CreateHomework = () => {
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Create Homework</Accordion.Header>
                 <Accordion.Body>
-                    {/* Form */}
                     <Form onSubmit={formik.handleSubmit}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Homework Title</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="title"
+                                onChange={formik.handleChange}
+                                placeholder="Enter Homework Title"
+                            />
+                        </Form.Group>
+
                         <Button
                             variant="primary"
                             onClick={() => addQuestion("code")}
@@ -152,6 +146,8 @@ const CreateHomework = () => {
                         </Form.Group>
 
                         <Button type="submit">Add Homework</Button>
+
+                        {/* Rest of the form */}
                     </Form>
                 </Accordion.Body>
             </Accordion.Item>

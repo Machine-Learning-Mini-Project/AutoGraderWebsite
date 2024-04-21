@@ -13,7 +13,7 @@ const Questions = require("../models/Questions");
 
 // Adding homework with dynamic question types
 const addHomework = asyncHandler(async (req, res, next) => {
-    let { deadline, questions } = req.body;
+    let { deadline, questions, title } = req.body;
     const classroom = req.classroom;
     questions = JSON.parse(questions)
   
@@ -86,6 +86,7 @@ const addHomework = asyncHandler(async (req, res, next) => {
   
     // Create new homework with all questions linked
     const homework = new Homework({
+        title: title, 
       endTime: deadline,
       teacher: req.user.id,
       appointedStudents: classroom.students,
@@ -104,28 +105,55 @@ const addHomework = asyncHandler(async (req, res, next) => {
   });
 // Submitting responses for homework questions
 const submitHomework = asyncHandler(async (req, res, next) => {
-  const homework = await Homework.findById(req.params.homeworkId);
-  if (!homework) return next(new CustomError("Homework not found", 404));
 
-  const { answers } = req.body;  // Expecting { questionId, answer, file (if applicable) }
+    const { answers } = req.body;  
 
-  answers.forEach(answer => {
-    const question = homework.questions.id(answer.questionId);
-    if (!question) return next(new CustomError("Question not found", 404));
+    const homework = await Homework.findById(req.params.homeworkID);
+    if (!homework) return next(new CustomError("Homework not found", 404));
 
-    if (question.type === 'code' && req.files && req.files[answer.questionId]) {
-      const file = req.files[answer.questionId]; // Using file upload middleware like multer
-      const filename = `${new Date().getTime()}_${file.originalname}`;
-      const filePath = path.join(__dirname, '../uploads', filename);
-      file.mv(filePath);
-      question.file = filePath;
-    } else if (question.type === 'subjective') {
-      question.answer = answer.answer;
+
+    const files = req.files;  // Assuming files are uploaded with keys matching question IDs if type is 'code'
+    let updates = [];
+
+    console.log(answers);
+
+    // Handle file and answer updates asynchronously
+    for (const answer of answers) {
+        const question = homework.questions.id(answer.questionId);
+        if (!question) continue;  // Skip if question not found
+
+        if (question.type === 'code' && files && files[answer.questionId]) {
+            const file = files[answer.questionId];
+            const filename = `${new Date().getTime()}_${file.originalname}`;
+            const filePath = path.join(__dirname, '../uploads', filename);
+
+            try {
+                await new Promise((resolve, reject) => {
+                    fs.rename(file.path, filePath, (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            console.log(`File ${file.originalname} successfully moved to ${filePath}`);
+                            resolve();
+                        }
+                    });
+                });
+                question.file = filePath;  // Update the question file path
+            } catch (error) {
+                console.error(`Error moving file ${file.originalname}:`, error);
+            }
+        } else if (question.type === 'subjective') {
+            question.answer = answer.answer;  // Update the answer text
+        }
+
+        updates.push(question.save());
     }
-  });
 
-  await homework.save();
-  res.status(200).json({ success: true, data: homework });
+    // Wait for all updates to finish
+    await Promise.all(updates);
+
+    await homework.save();  // Save changes to homework
+    res.status(200).json({ success: true, data: homework });
 });
 
 // Fetching detailed homework information

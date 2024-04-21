@@ -4,8 +4,8 @@ import { useFormik } from "formik";
 import { BsFillCapslockFill } from "react-icons/bs";
 import { fetchSubmitHomework } from "../../api/homeworkApi";
 
-const SubmitHomeworkOffCanvas = ({ homeworkID }) => {
-  const formData = new FormData();
+const SubmitHomeworkOffCanvas = ({ homeworkID, questions }) => {
+  const formData = useState([]);
 
   const [show, setShow] = useState(false);
   const [toastShow, setToastShow] = useState(false);
@@ -14,13 +14,18 @@ const SubmitHomeworkOffCanvas = ({ homeworkID }) => {
   const handleShow = () => setShow(true);
 
   const formik = useFormik({
-    initialValues: {
-      homework: null,
-    },
+    initialValues: questions.reduce((acc, question, index) => ({
+      ...acc,
+      [`response_${index}`]: question.type === 'code' ? null : '',
+    }), {}),
     onSubmit: async (values, bag) => {
+      Object.keys(values).forEach(key => {
+        if (key.startsWith('response_')) {
+          formData[values[key].name] = values[key];
+        }
+      });
       try {
-        formData.append("homework", values.homework);
-        console.log(formData)
+        console.log(formData);
         await fetchSubmitHomework(homeworkID, formData);
         setShow(false);
         setToastShow(true);
@@ -30,8 +35,9 @@ const SubmitHomeworkOffCanvas = ({ homeworkID }) => {
     },
   });
 
-  const handleChangeFile = (e) => {
-    formik.setFieldValue("homework", e.target.files[0]);
+  const handleChange = (e, index) => {
+    const field = `response_${index}`;
+    formik.setFieldValue(field, questions[index].type === 'code' ? e.target.files[0] : e.target.value);
   };
 
   return (
@@ -41,29 +47,35 @@ const SubmitHomeworkOffCanvas = ({ homeworkID }) => {
         Submit Homework
       </Button>
 
-      <Offcanvas
-        show={show}
-        onHide={handleClose}
-        className="w-75 h-75 mx-auto p-5"
-        placement="top"
-      >
+      <Offcanvas show={show} onHide={handleClose} className="w-75 h-75 mx-auto p-5" placement="top">
         <Offcanvas.Header closeButton={true}>
           <Offcanvas.Title>Homework Upload</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body className="mt-2">
-          {formik.errors.general && (
-            <Alert variant="danger">{formik.errors.general}</Alert>
-          )}
+          {formik.errors.general && <Alert variant="danger">{formik.errors.general}</Alert>}
           <Form onSubmit={formik.handleSubmit} encType="multipart/form-data">
-            <Form.Group controlId="homework" className="mb-3 mt-2">
-              <Form.Label>File Upload</Form.Label>
-              <Form.Control
-                onChange={handleChangeFile}
-                type="file"
-                name="homework"
-                aria-label="Upload"
-              />
-            </Form.Group>
+            {questions.map((question, index) => (
+              <Form.Group key={index} controlId={`response_${index}`} className="mb-3 mt-2">
+                <Form.Label>
+                  <strong>Question {index + 1}:</strong> {question.description}
+                </Form.Label>
+                {question.type === 'code' ? (
+                  <Form.Control
+                    onChange={(e) => handleChange(e, index)}
+                    type="file"
+                    name={`response_${index}`}
+                    aria-label="Upload"
+                  />
+                ) : (
+                  <Form.Control
+                    onChange={(e) => handleChange(e, index)}
+                    as="textarea"
+                    name={`response_${index}`}
+                    aria-label="Text Answer"
+                  />
+                )}
+              </Form.Group>
+            ))}
             <div className="d-grid gap-2">
               <Button type="submit" className="mt-2">
                 Upload
@@ -72,12 +84,7 @@ const SubmitHomeworkOffCanvas = ({ homeworkID }) => {
           </Form>
         </Offcanvas.Body>
       </Offcanvas>
-      <Toast
-        onClose={() => setToastShow(false)}
-        show={toastShow}
-        delay={2000}
-        autohide
-      >
+      <Toast onClose={() => setToastShow(false)} show={toastShow} delay={2000} autohide>
         <Toast.Header>
           <strong className="me-auto text-success">Successful</strong>
         </Toast.Header>
