@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Form, Accordion, InputGroup, FormControl } from 'react-bootstrap';
 import { useFormik } from 'formik';
 import { fetchCreateHomework } from '../../api/homeworkApi';
@@ -8,24 +8,14 @@ const CreateHomework = () => {
     const [questions, setQuestions] = useState([]);
     const { classroom } = useContext(AuthContext);
 
-    useEffect(() => {
-        // console.log(questions)
-    }, [questions]);
-
     const formik = useFormik({
         initialValues: {
-            title: '', // Include title in the initial values
+            title: '',
             deadline: '',
         },
         onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
             setSubmitting(true);
             
-            const homeworkData = {
-                title: values.title,
-                deadline: values.deadline,
-                questions: questions
-            };
-
             const formData = new FormData();
             formData.append("title", values.title);
             formData.append("deadline", values.deadline);
@@ -51,7 +41,13 @@ const CreateHomework = () => {
     });
 
     const addQuestion = (type) => {
-        const newQuestion = { type, description: '', file: null };
+        const newQuestion = { 
+            type, 
+            description: '', 
+            file: null, 
+            score: '', 
+            instruction: ''
+        };
         setQuestions([...questions, newQuestion]);
     };
 
@@ -81,58 +77,56 @@ const CreateHomework = () => {
                             />
                         </Form.Group>
 
-                        <Button
-                            variant="primary"
-                            onClick={() => addQuestion("code")}
-                        >
+                        <Button variant="primary" onClick={() => addQuestion("code")}>
                             Add Code Question
                         </Button>
-                        <Button
-                            variant="primary"
-                            onClick={() => addQuestion("subjective")}
-                        >
+                        <Button className="mx-2" variant="primary" onClick={() => addQuestion("subjective")}>
                             Add Subjective Question
                         </Button>
 
+                        <hr/>
+
                         {questions.map((question, index) => (
                             <div key={index} className="my-3">
+                                <h4 className='py-2'>Question #{index + 1}</h4>
                                 <InputGroup>
                                     <FormControl
                                         placeholder="Question Description"
                                         value={question.description}
-                                        onChange={(e) =>
-                                            handleQuestionChange(
-                                                e.target.value,
-                                                index,
-                                                "description"
-                                            )
-                                        }
+                                        onChange={(e) => handleQuestionChange(e.target.value, index, "description")}
                                     />
                                 </InputGroup>
                                 {question.type === "code" ? (
                                     <FormControl
+                                        className="my-2"
                                         type="file"
-                                        onChange={(e) =>
-                                            handleQuestionChange(
-                                                e.target.files[0],
-                                                index,
-                                                "file"
-                                            )
-                                        }
+                                        onChange={(e) => handleQuestionChange(e.target.files[0], index, "file")}
                                     />
                                 ) : (
                                     <FormControl
+                                        className="my-2"
                                         as="textarea"
-                                        placeholder="Write the question here"
-                                        onChange={(e) =>
-                                            handleQuestionChange(
-                                                e.target.value,
-                                                index,
-                                                "answer"
-                                            )
-                                        }
+                                        placeholder="Write the expected answer here"
+                                        onChange={(e) => handleQuestionChange(e.target.value, index, "answer")}
                                     />
                                 )}
+                                <InputGroup className="my-2">
+                                    <FormControl
+                                        type="text"
+                                        placeholder="Instruction"
+                                        value={question.instruction}
+                                        onChange={(e) => handleQuestionChange(e.target.value, index, "instruction")}
+                                    />
+                                </InputGroup>
+                                <InputGroup>
+                                    <FormControl
+                                        type="number"
+                                        placeholder="Score"
+                                        value={question.score}
+                                        onChange={(e) => handleQuestionChange(e.target.value, index, "score")}
+                                    />
+                                </InputGroup>
+                                <hr/>
                             </div>
                         ))}
 
@@ -146,8 +140,6 @@ const CreateHomework = () => {
                         </Form.Group>
 
                         <Button type="submit">Add Homework</Button>
-
-                        {/* Rest of the form */}
                     </Form>
                 </Accordion.Body>
             </Accordion.Item>

@@ -18,6 +18,14 @@ const QuestionSchema = new Schema({
     answer: {
       type: String,
       required: function() { return this.type === 'subjective'; } // Conditional required based on question type
+    },
+    score: {
+      type: Number,
+      required: true
+    } , 
+    instruction: {
+      type: String, 
+      required: true
     }
   });
 

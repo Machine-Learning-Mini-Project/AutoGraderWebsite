@@ -51,7 +51,6 @@ const addHomework = asyncHandler(async (req, res, next) => {
       }
     }
 
-    // console.log("here")
 
     // console.log("File saved to:", filePath);
 
@@ -62,12 +61,16 @@ const addHomework = asyncHandler(async (req, res, next) => {
         const dat = new Questions({
           type: question.type,
           description: question.description,
-          file: filepaths[i1]
+          file: filepaths[i1],
+          score: question.score, 
+          instruction: question.instruction
         });
         i1 += 1;
         savedQuestions.push(dat);
       }
     });
+
+    
 
 
     console.log("here")
@@ -77,7 +80,9 @@ const addHomework = asyncHandler(async (req, res, next) => {
         const dat = new Questions({
           type: question.type,
           description: question.description,
-          answer: question.answer
+          answer: question.answer,
+          score: question.score, 
+          instruction: question.instruction
         });        
         savedQuestions.push(dat);
       }
