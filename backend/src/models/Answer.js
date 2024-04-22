@@ -26,6 +26,10 @@ const AnswerSchema = new Schema({
     feedback:{
       type: String,
       required: false
+    },
+    plagDetect:{
+      type:Boolean,
+      required: false
     }
   });
 

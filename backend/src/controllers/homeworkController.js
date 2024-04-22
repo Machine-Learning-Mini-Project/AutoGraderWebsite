@@ -164,8 +164,6 @@ const submitHomework = asyncHandler(async (req, res, next) => {
             }
         } else if (question.type === 'subjective') {
 
-            console.log("majjjjix");
-
             const ans = new Answer({
                 type: question.type, 
                 answer: question.answer,
@@ -174,6 +172,8 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
             await ans.save();
             answers.push(ans);
+
+            
         }
 
         // updates.push(hwquestion.save());
