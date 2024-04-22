@@ -49,6 +49,11 @@ export const fetchMe = async () => {
   return result;
 };
 
+export const fetchUser = async (userId) => {
+    const result = await api.get(`${BASE_URL}/api/users/get/${userId}`);
+    return result;
+}
+
 export const fetchLogout = async (userID) => {
   if (userID !== undefined) {
     const result = await axios.get(`${BASE_URL}/api/users/logout/${userID}`);

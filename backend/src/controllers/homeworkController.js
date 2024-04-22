@@ -189,8 +189,13 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
     console.log("abcd",user._id, answers);
 
+    console.log(homework);
+
 
     const userIdString = user._id.toString();
+
+    while(homework.appointedStudents.length && !homework.appointedStudents[0].student) homework.appointedStudents.shift();
+
 
 // Check if there isn't already an element in the array with the same user id
 const existingStudentIndex = homework.appointedStudents.findIndex(appointedStudent => appointedStudent.student.toString() === userIdString);
@@ -207,7 +212,6 @@ if (existingStudentIndex === -1) {
 
 
 
-    while(homework.appointedStudents.length && !homework.appointedStudents[0].student) homework.appointedStudents.shift();
 
     await homework.save()
 
@@ -217,19 +221,8 @@ if (existingStudentIndex === -1) {
 // Fetching detailed homework information
 const getHomework = asyncHandler(async (req, res, next) => {
   const { homeworkID } = req.params;
-  const homework = await Homework.findById(homeworkID)
-    .populate({
-      path: "submitters",
-      populate: { path: "user", select: "name lastname" },
-    })
-    .populate({
-      path: "appointedStudents",
-      select: "name lastname",
-    })
-    .populate({
-      path: "teacher",
-      select: "name lastname",
-    });
+  const homework = await Homework.findById(homeworkID);
+  console.log(homework);
   if (!homework) return next(new CustomError("Homework not found", 404));
   res.status(200).json({ success: true, homework });
 });

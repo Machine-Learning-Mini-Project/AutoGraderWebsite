@@ -13,9 +13,12 @@ import {
   fetchHomeworkDetail,
 } from "../../api/homeworkApi";
 
+import { fetchUser } from "../../api/authApi";
+
 const HomeworkPage = () => {
   const { homeworkID } = useParams();
   const [homework, setHomework] = useState({});
+  const [users, setUsers] = useState([])
   const [show, setShow] = useState(false);
   const [lock, setLock] = useState(false);
   const { classroom } = useContext(AuthContext);
@@ -23,10 +26,35 @@ const HomeworkPage = () => {
   useEffect(() => {console.log(homework)}, [])
 
   useEffect(() => {
+    console.log(users);
+  }, [users])
+
+  useEffect(() => {
+
+    const printDetails = async (userID) => {
+        const {data} = await fetchUser(userID);
+        console.log(data.user);
+        const isUserPresent = users.some(existingUser => existingUser._id === data.user._id);
+
+        if (!isUserPresent) {
+            setUsers([...users, data.user]);
+        } else {
+            console.log("User is already present in the array.");
+        }
+    };
+
     const getHomeworkDetail = async () => {
       const { data } = await fetchHomeworkDetail(homeworkID);
-      setHomework({ ...data.homework });
+      console.log(data.homework);
+
+      for(let i = 0; i < data.homework.appointedStudents.length; i++) {
+        console.log(data.homework.appointedStudents[i].student);
+        await printDetails(data.homework.appointedStudents[i].student);
+      }
+
+      setHomework(data.homework);
     };
+    
     getHomeworkDetail();
   }, [homeworkID, show]);
 
@@ -82,32 +110,34 @@ const HomeworkPage = () => {
       {/* body */}
       <p className="lead">{homework?.content}</p>
 
-      {homework && homework?.submitters && homework?.submitters?.length > 0 && (
+      <h4>Student Submissions</h4>
+
+      {homework && homework?.appointedStudents?.length > 0 && (
         <Table striped bordered hover size="sm">
           <thead>
             <tr>
               <th>Name</th>
               <th>Lastname</th>
-              <th>Project</th>
+              <th>Submission</th>
               <th>Score</th>
               <th>Rate</th>
             </tr>
           </thead>
           <tbody>
-            {homework?.submitters && homework?.submitters?.map((submitter) => (
+            {homework?.appointedStudents && homework?.appointedStudents?.map((submitter, index) => (
               <tr key={submitter._id}>
-                <td>{submitter.user.name}</td>
-                <td>{submitter.user.lastname}</td>
+                <td>{users[index].name}</td>
+                <td>{users[index].lastname}</td>
                 <td>
-                  <Button size="sm" variant="secondary" onClick={() => downloadFile(submitter.file)}>
+                  <Button size="sm" variant="secondary" onClick={() => downloadFile(submitter?.file)}>
                     <FaDownload />
                   </Button>
                 </td>
                 <td>{submitter?.score || "-"}</td>
                 <td>
                   <RateProjectOffCanvas
-                    name={submitter?.user.name}
-                    lastname={submitter?.user.lastname}
+                    name={users[index].name}
+                    lastname={users[index].lastname}
                     projectID={submitter?._id}
                     show={show}
                     setShow={setShow}
@@ -119,6 +149,11 @@ const HomeworkPage = () => {
         </Table>
       )}
 
+      <hr/>
+
+      <h4>Students</h4>
+
+
       {homework?.appointedStudents?.length > 0 && (
         <Table striped bordered hover size="sm">
           <thead>
@@ -128,10 +163,10 @@ const HomeworkPage = () => {
             </tr>
           </thead>
           <tbody>
-            {homework.appointedStudents.map((student) => (
+            {homework.appointedStudents.map((student, index) => (
               <tr key={student._id}>
-                <td>{student.name}</td>
-                <td>{student.lastname}</td>
+                <td>{users[index].name}</td>
+                <td>{users[index].lastname}</td>
               </tr>
             ))}
           </tbody>
