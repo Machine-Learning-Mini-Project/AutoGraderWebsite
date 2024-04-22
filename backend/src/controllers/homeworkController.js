@@ -9,6 +9,8 @@ const excelCreater = require("../helpers/excel/excelCreater");
 const path = require("path");
 const fs = require('fs');  // For file handling, if necessary
 const Questions = require("../models/Questions");
+const Answer = require("../models/Answer");
+const { verify } = require("jsonwebtoken");
 
 
 // Adding homework with dynamic question types
@@ -70,7 +72,7 @@ const addHomework = asyncHandler(async (req, res, next) => {
       }
     });
 
-    
+
 
 
     console.log("here")
@@ -116,7 +118,15 @@ const addHomework = asyncHandler(async (req, res, next) => {
 // Submitting responses for homework questions
 const submitHomework = asyncHandler(async (req, res, next) => {
 
-    const { questions } = req.body;  
+    let { questions } = req.body;  
+
+    console.log("xx",req.params)
+
+    questions = JSON.parse(questions)
+
+
+    console.log("Woww", questions)
+    console.log(req.files)
 
     const homework = await Homework.findById(req.params.homeworkID);
     if (!homework) return next(new CustomError("Homework not found", 404));
@@ -124,18 +134,15 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
     const files = req.files;  // Assuming files are uploaded with keys matching question IDs if type is 'code'
     let updates = [];
+    let answers = [];
 
-    // console.log(req.homework);
-
-    // const answers = questions.answers
-    // console.log(questions)
-
-    // Handle file and answer updates asynchronously
     for (const question of questions) {
-        const hwquestion = homework.questions._id(question._id);
-        if (!hwquestion) continue;  // Skip if question not found
 
-        if (hwquestion.type === 'code' && files && files[answer.questionId]) {
+        // question = json.pa
+
+        console.log(question)
+
+        if (question.type === 'code' && files && files[question.questionId]) {
             const file = files[answer.questionId];
             const filename = `${new Date().getTime()}_${file.originalname}`;
             const filePath = path.join(__dirname, '../uploads', filename);
@@ -156,16 +163,54 @@ const submitHomework = asyncHandler(async (req, res, next) => {
                 console.error(`Error moving file ${file.originalname}:`, error);
             }
         } else if (question.type === 'subjective') {
-          hwquestion.answer = answer.answer;  // Update the answer text
+
+            console.log("majjjjix");
+
+            const ans = new Answer({
+                type: question.type, 
+                answer: question.answer,
+                questionId: question._id
+            });
+
+            await ans.save();
+            answers.push(ans);
         }
 
-        updates.push(hwquestion.save());
+        // updates.push(hwquestion.save());
     }
 
-    // Wait for all updates to finish
-    await Promise.all(updates);
+    const authorization = req.headers["authorization"];
+    if (!authorization) return next(new CustomError("You need to login", 400));
+  
+    const token = authorization.split(" ")[1];
+    const { _id, email, role } = verify(token, process.env.SECRET_ACCESS_TOKEN);
 
-    await homework.save();  // Save changes to homework
+    const user = await User.findById(_id);
+
+    console.log("abcd",user._id, answers);
+
+
+    const userIdString = user._id.toString();
+
+// Check if there isn't already an element in the array with the same user id
+const existingStudentIndex = homework.appointedStudents.findIndex(appointedStudent => appointedStudent.student.toString() === userIdString);
+
+if (existingStudentIndex === -1) {
+    // If no existing element found, push the new element
+    homework.appointedStudents.push({
+        student: user._id,
+        answers: answers
+    });
+} else {
+    console.log("Student already exists in the array.");
+}
+
+
+
+    while(homework.appointedStudents.length && !homework.appointedStudents[0].student) homework.appointedStudents.shift();
+
+    await homework.save()
+
     res.status(200).json({ success: true, data: homework });
 });
 

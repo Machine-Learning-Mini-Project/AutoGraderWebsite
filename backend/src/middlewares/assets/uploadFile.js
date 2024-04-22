@@ -24,8 +24,6 @@ const storage = multer.diskStorage({
     const fileName = `${classroomID}-${userID}-${sign}.${extension}`;
 
     cb(null, fileName);
-
-    // console.log("req")
   },
 });
 

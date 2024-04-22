@@ -29,7 +29,7 @@ const SubmitHomeworkOffCanvas = ({ homeworkID, questions }) => {
             console.log(formData)
 
             for (let i = 0; i < values.questions.length; i++) {
-                if (values.questions[i].file !== undefined)
+                if (values.questions[i].file)
                     formData.append(`codeFile${values.questions[i]._id}`, values.questions[i].file);
             }
 
