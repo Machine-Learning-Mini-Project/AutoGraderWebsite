@@ -11,6 +11,8 @@ const fs = require('fs');  // For file handling, if necessary
 const Questions = require("../models/Questions");
 const Answer = require("../models/Answer");
 const { verify } = require("jsonwebtoken");
+const axios = require("axios")
+
 
 
 // Adding homework with dynamic question types
@@ -120,13 +122,13 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
     let { questions } = req.body;  
 
-    console.log("xx",req.params)
+    // console.log("xx",req.params)
 
     questions = JSON.parse(questions)
 
 
-    console.log("Woww", questions)
-    console.log(req.files)
+    // console.log("Woww", questions)
+    // console.log(req.files)
 
     const homework = await Homework.findById(req.params.homeworkID);
     if (!homework) return next(new CustomError("Homework not found", 404));
@@ -140,7 +142,7 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
         // question = json.pa
 
-        console.log(question)
+        // console.log(question)
 
         if (question.type === 'code' && files && files[question.questionId]) {
             const file = files[answer.questionId];
@@ -169,11 +171,29 @@ const submitHomework = asyncHandler(async (req, res, next) => {
                 answer: question.answer,
                 questionId: question._id
             });
-
-            await ans.save();
-            answers.push(ans);
+            
+              try {
+                  console.log("Inside try block");
+                  const response = await axios.post('http://localhost:5001/grade', {
+                      question: question.description,
+                      points: question.score,
+                      instruction: question.instruction,
+                      answer: question.answer
+                  });
+                  // console.log("Response received:", response.data);
+                  ans['points'] = response.data.points;
+                  ans['feedback'] = response.data.feedback;
+              } catch (error) {
+                  console.error("Error occurred:", error);
+              }
+              console.log("After try block");
 
             
+            await ans.save();
+            answers.push(ans);
+            console.log(ans)
+              
+
         }
 
         // updates.push(hwquestion.save());
@@ -187,9 +207,9 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
     const user = await User.findById(_id);
 
-    console.log("abcd",user._id, answers);
+    // console.log("abcd",user._id, answers);
 
-    console.log(homework);
+    // console.log(homework);
 
 
     const userIdString = user._id.toString();
@@ -222,7 +242,7 @@ if (existingStudentIndex === -1) {
 const getHomework = asyncHandler(async (req, res, next) => {
   const { homeworkID } = req.params;
   const homework = await Homework.findById(homeworkID);
-  console.log(homework);
+  // console.log(homework);
   if (!homework) return next(new CustomError("Homework not found", 404));
   res.status(200).json({ success: true, homework });
 });
