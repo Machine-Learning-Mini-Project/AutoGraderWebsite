@@ -204,12 +204,18 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
 
                 // console.log("Response received:", response.data);
+                const ans = new Answer({
+                  type: question.type, 
+                  file: filePath,
+                  questionId: question._id
+              });
+
                 ans['points'] = response.data.points;
                 ans['feedback'] = response.data.feedback;
 
                 await ans.save();
                 answers.push(ans);
-                console.log(ans)
+                // console.log(ans)
 
             } catch (error) {
                 console.error("Error occurred:", error);
@@ -276,15 +282,20 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 // Check if there isn't already an element in the array with the same user id
 const existingStudentIndex = homework.appointedStudents.findIndex(appointedStudent => appointedStudent.student.toString() === userIdString);
 
-if (existingStudentIndex === -1) {
-    // If no existing element found, push the new element
-    homework.appointedStudents.push({
-        student: user._id,
-        answers: answers
-    });
-} else {
-    console.log("Student already exists in the array.");
-}
+// if (existingStudentIndex === -1) {
+//     // If no existing element found, push the new element
+//     homework.appointedStudents.push({
+//         student: user._id,
+//         answers: answers
+//     });
+// } else {
+//     console.log("Student already exists in the array.");
+// }
+
+homework.appointedStudents.push({
+          student: user._id,
+          answers: answers
+      });
 
 
 
