@@ -23,7 +23,7 @@ router.post(
   isAuth,
   isStudent,
   homeworkCheck,
-  uploadFile.single("homework"),
+  uploadFile.any(),
   homeworkController.submitHomework
 );
 

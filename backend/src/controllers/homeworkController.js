@@ -20,7 +20,7 @@ const addHomework = asyncHandler(async (req, res, next) => {
     let savedQuestions = [];
 
     // console.log(questions)
-    console.log("megic")
+    // console.log("megic")
   
     // Use a for...of loop to handle asynchronous file operations and database saves
 
@@ -51,7 +51,7 @@ const addHomework = asyncHandler(async (req, res, next) => {
       }
     }
 
-    console.log("here")
+    // console.log("here")
 
     // console.log("File saved to:", filePath);
 
@@ -86,7 +86,7 @@ const addHomework = asyncHandler(async (req, res, next) => {
   
     // Create new homework with all questions linked
     const homework = new Homework({
-        title: title, 
+      title: title, 
       endTime: deadline,
       teacher: req.user.id,
       appointedStudents: classroom.students,
@@ -103,10 +103,15 @@ const addHomework = asyncHandler(async (req, res, next) => {
     // Send the response
     res.status(200).json({ success: true, data: homework });
   });
+
+
+
+
+
 // Submitting responses for homework questions
 const submitHomework = asyncHandler(async (req, res, next) => {
 
-    const { answers } = req.body;  
+    const { questions } = req.body;  
 
     const homework = await Homework.findById(req.params.homeworkID);
     if (!homework) return next(new CustomError("Homework not found", 404));
@@ -115,14 +120,17 @@ const submitHomework = asyncHandler(async (req, res, next) => {
     const files = req.files;  // Assuming files are uploaded with keys matching question IDs if type is 'code'
     let updates = [];
 
-    console.log(answers);
+    // console.log(req.homework);
+
+    // const answers = questions.answers
+    // console.log(questions)
 
     // Handle file and answer updates asynchronously
-    for (const answer of answers) {
-        const question = homework.questions.id(answer.questionId);
-        if (!question) continue;  // Skip if question not found
+    for (const question of questions) {
+        const hwquestion = homework.questions._id(question._id);
+        if (!hwquestion) continue;  // Skip if question not found
 
-        if (question.type === 'code' && files && files[answer.questionId]) {
+        if (hwquestion.type === 'code' && files && files[answer.questionId]) {
             const file = files[answer.questionId];
             const filename = `${new Date().getTime()}_${file.originalname}`;
             const filePath = path.join(__dirname, '../uploads', filename);
@@ -143,10 +151,10 @@ const submitHomework = asyncHandler(async (req, res, next) => {
                 console.error(`Error moving file ${file.originalname}:`, error);
             }
         } else if (question.type === 'subjective') {
-            question.answer = answer.answer;  // Update the answer text
+          hwquestion.answer = answer.answer;  // Update the answer text
         }
 
-        updates.push(question.save());
+        updates.push(hwquestion.save());
     }
 
     // Wait for all updates to finish
