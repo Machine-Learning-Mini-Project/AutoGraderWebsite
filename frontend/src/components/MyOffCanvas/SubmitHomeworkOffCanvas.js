@@ -15,28 +15,39 @@ const SubmitHomeworkOffCanvas = ({ homeworkID, questions }) => {
 
   const formik = useFormik({
     initialValues: questions.reduce((acc, question, index) => ({
-      ...acc,
-      [`response_${index}`]: question.type === 'code' ? null : '',
+      questions: questions
     }), {}),
-    onSubmit: async (values, bag) => {
-      Object.keys(values).forEach(key => {
-        if (key.startsWith('response_')) {
-          formData[values[key].name] = values[key];
-        }
-      });
-      try {
-        console.log(formData);
-        await fetchSubmitHomework(homeworkID, formData);
-        setShow(false);
-        setToastShow(true);
-      } catch (e) {
-        bag.setErrors({ general: e.response?.data.message });
-      }
-    },
+
+    onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
+            // setSubmitting(true);
+
+            console.log(values)
+
+            const formData = new FormData();
+            formData.append("questions", JSON.stringify(values.questions));
+
+            console.log(formData)
+
+            for (let i = 0; i < values.questions.length; i++) {
+                if (values.questions[i].file !== undefined)
+                    formData.append(`codeFile${values.questions[i]._id}`, values.questions[i].file);
+            }
+
+            try {
+                const response = await fetchSubmitHomework(homeworkID, formData);
+                resetForm();
+                setShow(false);
+                setToastShow(true);
+                alert("Homework added successfully");
+            } catch (error) {
+                console.error("Failed to submit homework:", error);
+                setErrors({ submit: "Failed to submit homework. Please try again." });
+            }
+    }
   });
 
   const handleChange = (e, index) => {
-    const field = `response_${index}`;
+    const field = `questions.${index}.answer`;
     formik.setFieldValue(field, questions[index].type === 'code' ? e.target.files[0] : e.target.value);
   };
 
@@ -70,7 +81,7 @@ const SubmitHomeworkOffCanvas = ({ homeworkID, questions }) => {
                   <Form.Control
                     onChange={(e) => handleChange(e, index)}
                     as="textarea"
-                    name={`response_${index}`}
+                    name={`${question._id}`}
                     aria-label="Text Answer"
                   />
                 )}
