@@ -21,6 +21,34 @@ const QuestionSchema = new Schema({
   }
 });
 
+const AnswerSchema = new Schema({
+  type: {
+    type: String,
+    enum: ['code', 'subjective'],
+    required: true
+  },
+  file: {
+    type: String, // Path to the file or identifier
+    required: function() { return this.type === 'code'; } // Conditional required based on question type
+  },
+  answer: {
+    type: String,
+    required: function() { return this.type === 'subjective'; } // Conditional required based on question type
+  },
+  questionId: {
+    type: mongoose.Types.ObjectId,
+    ref: "Question",
+  },
+  points:{
+    type: Number,
+    required: false
+  },
+  feedback:{
+    type: String,
+    required: false
+  }
+});
+
 const HomeworkSchema = new Schema({
     title: String,
   content: String,
@@ -36,9 +64,13 @@ const HomeworkSchema = new Schema({
   questions: [QuestionSchema], // Array of questions
   appointedStudents: [
     {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
+      student: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+      },
+      answers: [AnswerSchema]
     }
+
   ],
   scoreTable: String, // This might need to be more structured depending on how scores are tracked
 });
