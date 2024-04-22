@@ -26,11 +26,11 @@ const SubmitHomeworkOffCanvas = ({ homeworkID, questions }) => {
             const formData = new FormData();
             formData.append("questions", JSON.stringify(values.questions));
 
-            console.log(formData)
+            // console.log(values.questions[0].file)
 
             for (let i = 0; i < values.questions.length; i++) {
                 if (values.questions[i].file)
-                    formData.append(`codeFile${values.questions[i]._id}`, values.questions[i].file);
+                    formData.append(`codeFile${values.questions[i]._id}`, values.questions[i].answer);
             }
 
             try {
@@ -48,8 +48,10 @@ const SubmitHomeworkOffCanvas = ({ homeworkID, questions }) => {
 
   const handleChange = (e, index) => {
     const field = `questions.${index}.answer`;
+    // console.log(e.target.files[0])
     formik.setFieldValue(field, questions[index].type === 'code' ? e.target.files[0] : e.target.value);
   };
+  
 
   return (
     <>

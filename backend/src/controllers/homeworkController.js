@@ -12,6 +12,8 @@ const Questions = require("../models/Questions");
 const Answer = require("../models/Answer");
 const { verify } = require("jsonwebtoken");
 const axios = require("axios")
+const FormData = require('form-data');
+
 
 
 
@@ -142,12 +144,12 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
         // question = json.pa
 
-        // console.log(question)
-
-        if (question.type === 'code' && files && files[question.questionId]) {
-            const file = files[answer.questionId];
+        if (question.type === 'code' && files) {
+            const file = files[0];
             const filename = `${new Date().getTime()}_${file.originalname}`;
-            const filePath = path.join(__dirname, '../uploads', filename);
+            const filePath = path.join(__dirname, '../../public/uploads/homeworks', filename);
+
+            console.log(filename, filePath)
 
             try {
                 await new Promise((resolve, reject) => {
@@ -161,6 +163,61 @@ const submitHomework = asyncHandler(async (req, res, next) => {
                     });
                 });
                 question.file = filePath;  // Update the question file path
+
+                const ans = new Answer({
+                  type: question.type, 
+                  file: question.file,
+                  questionId: question._id
+              });
+
+
+
+              await ans.save();
+              answers.push(ans);
+              console.log(ans)
+
+              const url = 'http://localhost:5001/grade/code'; // Replace with your upload endpoint
+
+              // (async () => {
+              //   try {
+              //     const formData = new FormData();
+              //     formData.append('file', fs.createReadStream(filePath)); // Add the file
+
+              //     const response = await axios.post(url, formData, {
+              //       headers: formData.getHeaders(), // Set headers automatically
+              //     }
+              //   } catch (error) {
+              //     console.error("Error occurred:", error);
+              //   }
+              // });
+
+              try {
+                console.log("Inside try block");
+                const formData = new FormData();
+                formData.append('file', fs.createReadStream(filePath));
+                formData.append('question', question.description);
+                formData.append('points', question.score);
+                formData.append('instruction', question.instruction);
+                const response = await axios.post(url, formData, {
+                  headers: formData.getHeaders(),
+                })
+
+
+                // console.log("Response received:", response.data);
+                ans['points'] = response.data.points;
+                ans['feedback'] = response.data.feedback;
+
+                await ans.save();
+                answers.push(ans);
+                console.log(ans)
+
+            } catch (error) {
+                console.error("Error occurred:", error);
+            }
+
+
+
+
             } catch (error) {
                 console.error(`Error moving file ${file.originalname}:`, error);
             }
@@ -186,7 +243,6 @@ const submitHomework = asyncHandler(async (req, res, next) => {
               } catch (error) {
                   console.error("Error occurred:", error);
               }
-              console.log("After try block");
 
             
             await ans.save();
