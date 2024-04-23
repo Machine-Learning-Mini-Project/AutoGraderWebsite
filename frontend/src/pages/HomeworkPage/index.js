@@ -22,22 +22,25 @@ const HomeworkPage = () => {
   const [show, setShow] = useState(false);
   const [lock, setLock] = useState(false);
   const { classroom } = useContext(AuthContext);
+  const [plagResults, setPlagResults] = useState([]);
 
   useEffect(() => {console.log(homework)}, [])
 
-  useEffect(() => {
-    console.log(users);
-  }, [users])
+  // useEffect(() => {
+  //   console.log(users);
+  // }, [users])
 
   useEffect(() => {
 
     const printDetails = async (userID) => {
         const {data} = await fetchUser(userID);
-        console.log(data.user);
+        // console.log("here", data.user);
         const isUserPresent = users.some(existingUser => existingUser._id === data.user._id);
 
         if (!isUserPresent) {
+          console.log("here", data.user);
             setUsers([...users, data.user]);
+            console.log("printing users", users)
         } else {
             console.log("User is already present in the array.");
         }
@@ -45,10 +48,10 @@ const HomeworkPage = () => {
 
     const getHomeworkDetail = async () => {
       const { data } = await fetchHomeworkDetail(homeworkID);
-      console.log(data.homework);
+      // console.log("here", data.homework);
 
       for(let i = 0; i < data.homework.appointedStudents.length; i++) {
-        console.log(data.homework.appointedStudents[i].student);
+        // console.log(data.homework.appointedStudents[i].student);
         await printDetails(data.homework.appointedStudents[i].student);
       }
 
@@ -79,6 +82,10 @@ const HomeworkPage = () => {
     } finally {
       setLock(false);
     }
+  };
+
+  const checkForPlag = async (homeworkID) => {
+
   };
 
   return (
@@ -164,6 +171,28 @@ const HomeworkPage = () => {
           </thead>
           <tbody>
             {homework.appointedStudents.map((student, index) => (
+              <tr key={student._id}>
+                <td>{users[index].name}</td>
+                <td>{users[index].lastname}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+
+      <Button size="sm" variant="secondary" onClick={() => checkForPlag()}>
+        Check for Plagiarism
+      </Button>
+      {plagResults?.length > 0 && (
+        <Table striped bordered hover size="sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Lastname</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plagResults.map((student, index) => (
               <tr key={student._id}>
                 <td>{users[index].name}</td>
                 <td>{users[index].lastname}</td>
