@@ -221,9 +221,6 @@ const submitHomework = asyncHandler(async (req, res, next) => {
                 console.error("Error occurred:", error);
             }
 
-
-
-
             } catch (error) {
                 console.error(`Error moving file ${file.originalname}:`, error);
             }
@@ -236,7 +233,6 @@ const submitHomework = asyncHandler(async (req, res, next) => {
             });
             
               try {
-                  console.log("Inside try block");
                   const response = await axios.post('http://localhost:5001/grade', {
                       question: question.description,
                       points: question.score,
@@ -246,10 +242,55 @@ const submitHomework = asyncHandler(async (req, res, next) => {
                   // console.log("Response received:", response.data);
                   ans['points'] = response.data.points;
                   ans['feedback'] = response.data.feedback;
+                  
+                  const authorization = req.headers["authorization"];
+                  const token = authorization.split(" ")[1];
+                  // console.log("token", token)
+                  const tokendets = verify(token, process.env.SECRET_ACCESS_TOKEN);
+
+                  let plagAnswers = [{
+                    studentId: tokendets._id,
+                    answer: question.answer
+                  }];
+                  homework.appointedStudents.forEach(appointedStudents => {
+                      appointedStudents.answers.forEach(hwanswer => {
+                        if(hwanswer.questionId.toString() === question._id.toString()) {  
+                          plagAnswers.push({
+                            studentId: appointedStudents.student,
+                            answer: hwanswer.answer
+                          })
+                        }
+                      })
+                  });
+
+                  const response2 = await axios.post('http://localhost:5001/plag', {
+                      answers: plagAnswers
+                  });
+
+                  console.log(response2.data)
+
+                  response2.data.forEach(item => {
+                    // console.log(item)
+                    if (item.student1 === tokendets._id) {
+                      ans['plag'] = {
+                        student1: tokendets._id,
+                        student2: item.student2,
+                        probability: item.simScore
+                      }
+                    }
+                    else if(item.student2 === tokendets._id){
+                      ans['plag'] = {
+                        student1: tokendets._id,
+                        student2: item.student1,
+                        probability: item.simScore
+                      }
+                    }
+                  });
+
+
               } catch (error) {
                   console.error("Error occurred:", error);
               }
-
             
             await ans.save();
             answers.push(ans);

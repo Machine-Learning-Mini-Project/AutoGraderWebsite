@@ -54,6 +54,22 @@ const AnswerSchema = new Schema({
   feedback:{
     type: String,
     required: false
+  },
+  plagDetect:{
+    student1: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false
+    },
+    student2: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false
+    },
+    probability: {
+      type: Number,
+      required: false
+    }
   }
 });
 

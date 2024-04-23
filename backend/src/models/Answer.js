@@ -28,8 +28,20 @@ const AnswerSchema = new Schema({
       required: false
     },
     plagDetect:{
-      type:Boolean,
-      required: false
+      student1: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false
+      },
+      student2: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false
+      },
+      probability: {
+        type: Number,
+        required: false
+      }
     }
   });
 
