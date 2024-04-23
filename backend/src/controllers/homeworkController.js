@@ -270,15 +270,15 @@ const submitHomework = asyncHandler(async (req, res, next) => {
                   console.log(response2.data)
 
                   response2.data.forEach(item => {
-                    // console.log(item)
-                    if (item.student1 === tokendets._id) {
+                    console.log(item.student1, tokendets._id)
+                    if (item.student1.toString() === tokendets._id.toString()) {
                       ans['plag'] = {
                         student1: tokendets._id,
                         student2: item.student2,
                         probability: item.simScore
                       }
                     }
-                    else if(item.student2 === tokendets._id){
+                    else if(item.student2.toString() === tokendets._id.toString()){
                       ans['plag'] = {
                         student1: tokendets._id,
                         student2: item.student1,

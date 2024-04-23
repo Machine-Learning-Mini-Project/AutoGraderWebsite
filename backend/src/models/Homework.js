@@ -55,7 +55,7 @@ const AnswerSchema = new Schema({
     type: String,
     required: false
   },
-  plagDetect:{
+  plag:{
     student1: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
