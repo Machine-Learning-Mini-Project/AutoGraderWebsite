@@ -26,6 +26,16 @@ const HomeworkPage = () => {
 
   useEffect(() => {console.log(homework)}, [])
 
+  const getScore = (arr) => {
+    let score = 0;
+
+    for(let i = 0; i < arr.length; i++) {
+        if(arr[i].points) score += arr[i].points;
+    }
+
+    return score;
+  }
+
   // useEffect(() => {
   //   console.log(users);
   // }, [users])
@@ -33,33 +43,28 @@ const HomeworkPage = () => {
   useEffect(() => {
 
     const printDetails = async (userID) => {
-        const {data} = await fetchUser(userID);
-        // console.log("here", data.user);
+        const { data } = await fetchUser(userID);
         const isUserPresent = users.some(existingUser => existingUser._id === data.user._id);
 
         if (!isUserPresent) {
-          console.log("here", data.user);
-            setUsers([...users, data.user]);
-            console.log("printing users", users)
+            setUsers(prevUsers => [...prevUsers, data.user]); // Use functional form of setUsers
         } else {
             console.log("User is already present in the array.");
         }
     };
 
     const getHomeworkDetail = async () => {
-      const { data } = await fetchHomeworkDetail(homeworkID);
-      // console.log("here", data.homework);
+        const { data } = await fetchHomeworkDetail(homeworkID);
 
-      for(let i = 0; i < data.homework.appointedStudents.length; i++) {
-        // console.log(data.homework.appointedStudents[i].student);
-        await printDetails(data.homework.appointedStudents[i].student);
-      }
+        for (let i = 0; i < data.homework.appointedStudents.length; i++) {
+            await printDetails(data.homework.appointedStudents[i].student);
+        }
 
-      setHomework(data.homework);
+        setHomework(data.homework);
     };
     
     getHomeworkDetail();
-  }, [homeworkID, show]);
+}, [homeworkID, show]);
 
   const downloadFile = async (filename) => {
     try {
@@ -128,19 +133,20 @@ const HomeworkPage = () => {
               <th>Submission</th>
               <th>Score</th>
               <th>Rate</th>
+              <th>Plagiarism Probability</th>
             </tr>
           </thead>
           <tbody>
             {homework?.appointedStudents && homework?.appointedStudents?.map((submitter, index) => (
               <tr key={submitter._id}>
-                <td>{users[index].name}</td>
-                <td>{users[index].lastname}</td>
+                <td>{users.length > index && users[index].name}</td>
+                <td>{users.length > index && users[index].lastname}</td>
                 <td>
                   <Button size="sm" variant="secondary" onClick={() => downloadFile(submitter?.file)}>
                     <FaDownload />
                   </Button>
                 </td>
-                <td>{submitter?.score || "-"}</td>
+                <td>{getScore(submitter.answers)}</td>
                 <td>
                   <RateProjectOffCanvas
                     name={users[index].name}
@@ -172,8 +178,8 @@ const HomeworkPage = () => {
           <tbody>
             {homework.appointedStudents.map((student, index) => (
               <tr key={student._id}>
-                <td>{users[index].name}</td>
-                <td>{users[index].lastname}</td>
+                <td>{users.length > index && users[index].name}</td>
+                <td>{users.length > index && users[index].lastname}</td>
               </tr>
             ))}
           </tbody>
@@ -194,8 +200,8 @@ const HomeworkPage = () => {
           <tbody>
             {plagResults.map((student, index) => (
               <tr key={student._id}>
-                <td>{users[index].name}</td>
-                <td>{users[index].lastname}</td>
+                <td>{users.length > index && users[index].name}</td>
+                <td>{users.length > index && users[index].lastname}</td>
               </tr>
             ))}
           </tbody>
