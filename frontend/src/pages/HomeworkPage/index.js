@@ -12,6 +12,7 @@ import {
   fetchDownloadHomeworkFile,
   fetchHomeworkDetail,
 } from "../../api/homeworkApi";
+import DisplayAnswersOffCanvas from "../../components/MyOffCanvas/DisplayAnswersOffCanvas";
 
 import { fetchUser } from "../../api/authApi";
 
@@ -51,6 +52,8 @@ const HomeworkPage = () => {
         } else {
             console.log("User is already present in the array.");
         }
+
+       
     };
 
     const getHomeworkDetail = async () => {
@@ -79,6 +82,7 @@ const HomeworkPage = () => {
   const downloadExcelFile = async (homeworkID) => {
     setLock(true);
     try {
+        console.log("hmm", classroom);
       const response = await fetchDownloadExcelFile(classroom._id, homeworkID);
       const blob = await response.blob();
       saveAs(blob, "StudentGrades.xlsx");
@@ -133,6 +137,7 @@ const HomeworkPage = () => {
               <th>Submission</th>
               <th>Score</th>
               <th>Rate</th>
+              <th>Answers</th>
               <th>Plagiarism Probability</th>
             </tr>
           </thead>
@@ -155,6 +160,9 @@ const HomeworkPage = () => {
                     show={show}
                     setShow={setShow}
                   />
+                </td>
+                <td>
+                    <DisplayAnswersOffCanvas answers = {submitter.answers} questions = {homework.questions}/>
                 </td>
               </tr>
             ))}
