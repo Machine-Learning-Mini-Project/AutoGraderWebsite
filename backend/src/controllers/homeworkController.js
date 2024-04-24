@@ -172,9 +172,9 @@ const submitHomework = asyncHandler(async (req, res, next) => {
 
 
 
-              await ans.save();
-              answers.push(ans);
-              console.log(ans)
+              // await ans.save();
+              // answers.push(ans);
+              // console.log(ans)
 
               const url = 'http://localhost:5001/grade/code'; // Replace with your upload endpoint
 
