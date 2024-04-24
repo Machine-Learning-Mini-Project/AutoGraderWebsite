@@ -24,7 +24,7 @@ const DisplayAnswersOffCanvas = ({ answers, questions }) => {
               <ListGroup.Item><strong>Answer:</strong> {answer.type === 'code' ? 'Code file attached' : answer.answer}</ListGroup.Item>
               <ListGroup.Item><strong>Score:</strong> {answer.points + " / " + questions[index]?.score}</ListGroup.Item>
               <ListGroup.Item><strong>Feedback:</strong> {answer.feedback}</ListGroup.Item>
-              <ListGroup.Item><strong>Plagiarism Detected:</strong> {answer.plagDetect ? 'Yes' : 'No'}</ListGroup.Item>
+              <ListGroup.Item><strong>Plagiarism Detected:</strong> {answer.plag ? answer.plag.probability : 'No'}</ListGroup.Item>
             </ListGroup>
           ))}
         </Offcanvas.Body>

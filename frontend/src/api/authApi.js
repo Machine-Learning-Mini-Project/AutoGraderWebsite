@@ -6,7 +6,7 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 async function tokenRefresh() {
   const token = localStorage.getItem("refresh-token");
   const result = await axios.post(
-    "http://localhost:4000/api/users/refreshtoken",
+    "http://localhost:4001/api/users/refreshtoken",
     {},
     { headers: { refreshtoken: token } }
   );
